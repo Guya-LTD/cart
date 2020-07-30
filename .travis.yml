@@ -12,7 +12,7 @@ install:
   - pip install tox-travis
 
 script:
-  - tox
+  - pytest
 
 after_success:
 - git config --global user.name "Simonbelete"
