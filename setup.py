@@ -9,8 +9,9 @@ https://github.com/pypa/sampleproject
 from setuptools import setup, find_packages
 import pathlib
 import uuid
+import sys
 
-from cart import __version__
+#from cart import __version__
 
 try: # for pip >= 10
     from pip._internal.req import parse_requirements
@@ -25,17 +26,10 @@ except:  # noqa: E722
     reqs = [str(ir.requirement) for ir in install_reqs]
 
 
-try:
-    from semantic_release import setup_hook
-    setup_hook(sys.argv)
-except ImportError as imerr:
-    sys.exit('Error importing semanitc release', imerr)
-
-
 here = pathlib.Path(__file__).parent.resolve()
 
 # Get the long description from the README file
-long_description = (here / 'README.md').read_text(encoding='utf-8')
+long_description = ''#(here / 'README.md').read_text(encoding='utf-8')
 
 # Arguments marked as "Required" below must be included for upload to PyPI.
 # Fields marked as "Optional" may be commented out.
@@ -60,7 +54,7 @@ setup(
     # For a discussion on single-sourcing the version across setup.py and the
     # project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version=__version__,  # Required
+    version='0.0.1',  # Required
 
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:
@@ -87,7 +81,7 @@ setup(
     #
     # This field corresponds to the "Description-Content-Type" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#description-content-type-optional
-    long_description_content_type='text/markdown',  # Optional (see note above)
+    #long_description_content_type='markdown',  # Optional (see note above)
 
     # This should be a valid link to your project's main homepage.
     #
