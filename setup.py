@@ -15,7 +15,7 @@ import sys
 
 try: # for pip >= 10
     from pip._internal.req import parse_requirements
-except ImportError: # for pip <= 9.0.3
+except: #ImportError: # for pip <= 9.0.3
     from pip.req import parse_requirements
 
 install_reqs = parse_requirements('requirements.txt', session=uuid.uuid1())
@@ -160,7 +160,7 @@ setup(
     #
     # For an analysis of "install_requires" vs pip's requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=reqs,  # Optional
+    #install_requires=reqs,  # Optional
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"

@@ -1,0 +1,42 @@
+version: '3.7'
+
+networks:
+  cart:
+    driver: ${NETWORKS_DRIVER}
+
+services:
+  mongo:
+    image: cart/mongo
+    container_name: monog
+    build:
+      context: .
+      dockerfile: ./mongo/Dockerfile
+      args:
+        MONGO_VERSION: ${MONGO_VERSION}
+    environment:
+      - MONGO_INITDB_DATABASE=${DB_NAME}
+      - MONGO_INITDB_ROOT_USERNAME=${DB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+    volumes:
+      - "${SERVICE_DIR}/mongo/data/db:/data/db"
+      - "${SERVICE_DIR}/mongo/init:/docker-entrypoint-initdb.d:ro"
+    ports:
+      - "${MONGO_PORT}"
+    networks:
+      - cart
+
+  cart:
+    image: cart/cart
+    container_name: cart
+    build:
+      context: ../
+      dockerfile: ./.docker/cart/Dockerfile
+      args:
+        PYTHON_VERSION: ${PYTHON_VERSION}
+        WORK_DIR: ${WORK_DIR}
+    environment:
+      - MONGO_PORT=${MONGO_PORT}
+    volumes:
+      - '${BASE_DIR}:${WORK_DIR}'
+    ports:
+      - '${CART_PORT}:${CART_PORT}'
