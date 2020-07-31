@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 
 """Copyright Header Details
@@ -35,26 +36,25 @@ Application features:
     Python 3.7
     Flask
     PEP-8 for code style
+    flask-mongoengine v0.7
 
 
-This module provides means to perform operations on the database.
+flask-mongoengine based ODM flask-mongoengine built up on pymongo engine.
 """
 
-from flask import Flask
-from flask_mongoengine import MongoEngine
+from cart.database import db
 
 
-# global vars
-db = MongoEngine()
+class TimestampMixin(object):
+    """Time Stamped Mixin
 
-
-def init(app: Flask) -> None:
-    """This function initialize the datase ORM/ODM, providing a session
-    and command line to create the tables/document in the database.
-
-    Parameters:
+    Attributes
     ----------
-        app (flask.app.Flask): The application instance.
+    created_at : DateTime
+
+    updated_at : DateTime
     """
-    
-    db.init_app(app)
+
+    created_at = db.Datetime(default = datetime.now(timezone('Africa/Addis_Ababa')))
+
+    updated_at = db.Datetime(default = datetime.now(timezone('Africa/Addis_Ababa')))

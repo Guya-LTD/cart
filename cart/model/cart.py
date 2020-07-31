@@ -37,24 +37,40 @@ Application features:
     PEP-8 for code style
 
 
-This module provides means to perform operations on the database.
+Entity.
 """
 
-from flask import Flask
-from flask_mongoengine import MongoEngine
 
+class Cart:
+    """A Base Model Representation of Item Entity.
+    .,..
 
-# global vars
-db = MongoEngine()
-
-
-def init(app: Flask) -> None:
-    """This function initialize the datase ORM/ODM, providing a session
-    and command line to create the tables/document in the database.
-
-    Parameters:
+    Attributes
     ----------
-        app (flask.app.Flask): The application instance.
+    ACTIVE: String
+        default value = active
+
+    PENDING: String
+        default value = pending
+
+    COMPLETE: String
+        default value = complete
+
+    EXPIRING: String
+        default value = expiring
+
+    EXPIRED: String
+        default value = expired
     """
     
-    db.init_app(app)
+    ACTIVE = 'active'
+
+    # checkout flow
+    PENDING = 'pending'
+
+    COMPLETE = 'complete'
+
+    # cart expiration flow
+    EXPIRING = 'expiring'
+
+    EXPIRED = 'expired'

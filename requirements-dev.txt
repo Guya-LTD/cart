@@ -1,2 +1,4 @@
 # Same for dev...
 -r requirements.txt
+
+Faker
