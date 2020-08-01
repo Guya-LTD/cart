@@ -9,13 +9,13 @@ env:
   - GH_TOKEN=cb13003e5e786746bddbec4f6dc1f247af5ecaa4
 
 install:
-  - pip install tox-travis
+  #- pip install tox-travis
+  - pip install -r requirements-dev.txt
 
 script:
   - pytest
 
 after_success:
-- git config --global user.name "Simonbelete"
-- git config --global user.email "simonbelete@gmail.com"
-- pip install python-semantic-release
-- semantic-release publish
+  - git config --global user.name "Simonbelete"
+  - git config --global user.email "simonbelete@gmail.com"
+  - semantic-release publish
