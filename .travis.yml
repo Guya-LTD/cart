@@ -6,7 +6,7 @@ python:
   - 3.7
 
 env:
-  - GH_TOKEN=cb13003e5e786746bddbec4f6dc1f247af5ecaa4
+  - GH_TOKEN=c1877cb71e32b1f67ff8025fdcdabd288752ed92
 
 install:
   #- pip install tox-travis
