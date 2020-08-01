@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/Guya-LTD/cart.svg?branch=master)](https://travis-ci.org/Guya-LTD/cart)
+
+
 # Cart service for Guya microservices
 
 Cart service for Guya microservices is a Python based Microservice API
