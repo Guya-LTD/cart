@@ -21,7 +21,7 @@ services:
       - "${SERVICE_DIR}/mongo/data/db:/data/db"
       - "${SERVICE_DIR}/mongo/init:/docker-entrypoint-initdb.d:ro"
     ports:
-      - "${MONGO_PORT}"
+      - "22202:${MONGO_PORT}"
     networks:
       - cart
 

@@ -61,3 +61,7 @@ logger.addHandler(
         os.getenv('LOGGING_PORT'),
         version=1)
     )
+
+
+def log_exception(error, extra) -> None:
+    logger.exception(str(error), extra = __extra__.update(extra))
