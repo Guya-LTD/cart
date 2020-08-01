@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Copyright Header Details
 
 Copyright
@@ -37,18 +35,14 @@ Application features:
     PEP-8 for code style
 
 
-Blueprint to v1 and group, related endpoint of HTTP REST API.
+Blueprint to organize and group, views related
+to the '/carts' endpoint of HTTP REST API.
 """
 
-from flask import Blueprint
-from flask_restplus import Api
+from flask_restplus import Namespace
 
+from . import api
 
-blueprint = Blueprint('apiv1', __name__)
+namespace = Namespace('Cart', description = 'Cart HTTP REST API endpoint')
 
-api = Api(
-    blueprint,
-    title = 'Cart service for Guya microservices',
-    version = '1.0.0',
-    description = 'Cart mangement service'
-)
+api.add_namespace(namespace, path = '/api/v1/carts')

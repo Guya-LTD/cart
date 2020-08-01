@@ -28,27 +28,14 @@ Project
 """
 
 
-"""Package details
+from flask_restplus import Namespace, fields
 
-Application features:
---------------------
-    Python 3.7
-    Flask
-    PEP-8 for code style
+from cart.blueprint.v1.cart import namespace
 
 
-Blueprint to v1 and group, related endpoint of HTTP REST API.
-"""
+class CartDto:
+    """Request and Respons Data Transfer Object."""
 
-from flask import Blueprint
-from flask_restplus import Api
+    request = namespace.model('cart_request', {})
 
-
-blueprint = Blueprint('apiv1', __name__)
-
-api = Api(
-    blueprint,
-    title = 'Cart service for Guya microservices',
-    version = '1.0.0',
-    description = 'Cart mangement service'
-)
+    response = namespace.model('cart_response', {})
