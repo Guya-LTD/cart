@@ -42,35 +42,5 @@ Entity.
 
 
 class Cart:
-    """A Base Model Representation of Item Entity.
-    .,..
-
-    Attributes
-    ----------
-    ACTIVE: String
-        default value = active
-
-    PENDING: String
-        default value = pending
-
-    COMPLETE: String
-        default value = complete
-
-    EXPIRING: String
-        default value = expiring
-
-    EXPIRED: String
-        default value = expired
-    """
-    
-    ACTIVE = 'active'
-
-    # checkout flow
-    PENDING = 'pending'
-
-    COMPLETE = 'complete'
-
-    # cart expiration flow
-    EXPIRING = 'expiring'
-
-    EXPIRED = 'expired'
+    """A Base Model Representation of Item Entity."""
+    pass

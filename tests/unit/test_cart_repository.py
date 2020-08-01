@@ -40,61 +40,78 @@ Application features:
 A pytest unit testing module.
 """
 
-
 import pytest
 from faker import Faker
 
+from cart.repository.embed import Descriptions, Details, Items, Names
 from cart.repository.cart import Cart
 
-faker = Faker()
+class TestCartRepository():
 
-AM_WORD_LIST = (
-    'አልማዝን', 'አየኋት', 'ከፈትኩላት', 'በሩን', 'ዘጋሁባት',
-    'አየሩ', 'ተኝቷል', 'ኢትዮጵያ', 'ውስጥ', 'ናት', 'ከተማ'
-)
-
-STATUS_CHOICES = (
-    Cart.ACTIVE,
-    Cart.PENDING,
-    Cart.COMPLETE,
-    Cart.EXPIRING,
-    Cart.EXPIRED
-)
-
-# list of carts
-item_one = {
-    'id': self.faker.bothify('??#%??#%##?#?%#'),
-    'quantity': self.faker.bothify('%#'),
-    'details': {
-        'name': {
-            'en': self.faker.sentence(),
-            'am': self.faker.sentence(ext_word_list = self.AM_WORD_LIST)
-        },
-        'description': {
-            'en': self.faker.paragraph(),
-            'am': self.faker.paragraph(ext_word_list = self.AM_WORD_LIST)
-        }
-    }
-}
-
-customer_id = faker.bothify('??#%??#%##?#?%###?%')
-status = faker.sentence(ext_word_list = STATUS_CHOICES)
-
-def test_object_creation(self):
-    # cart object
-    cart = Cart(
-        customer_id = customer_id,
-        status = status,
-        items = [item_one]
+    # consts
+    STATUS_CHOICES = (
+        Cart.ACTIVE,
+        Cart.PENDING,
+        Cart.COMPLETE,
+        Cart.EXPIRING,
+        Cart.EXPIRED
     )
-    
-    isinstance(cart, Cart)
 
-def test_object_creation_value_for_customer_id():
-    assert cart.customer_id == customer_id
+    AM_WORD_LIST = (
+        'አልማዝን', 'አየኋት', 'ከፈትኩላት', 'በሩን', 'ዘጋሁባት',
+        'አየሩ', 'ተኝቷል', 'ኢትዮጵያ', 'ውስጥ', 'ናት', 'ከተማ'
+    )
 
-def test_object_creation_value_for_status():
-    assert cart.status == status
 
-def test_object_creation_value_for_item_one():
-    assert cart.items[0] == item_one
+    def setup_class(self):
+        # init faker object
+        self.faker = Faker()
+        # init cart object
+        self.customer_id = self.faker.bothify('??#%??#%##?#?%###?%')
+        self.status = self.faker.sentence(ext_word_list = self.STATUS_CHOICES)
+        # list of carts
+        self.name = Names(
+            en = self.faker.sentence(),
+            am = self.faker.sentence(ext_word_list = self.AM_WORD_LIST)
+        )
+        self.description = Descriptions(
+            en = self.faker.paragraph(),
+            am = self.faker.paragraph(ext_word_list = self.AM_WORD_LIST)
+        )
+        self.detail = Details(
+            names = self.name,
+            descriptions = self.description
+        )
+        self.item = Items(
+            id = self.faker.bothify('??#%??#%##?#?%#'),
+            quantity = self.faker.bothify('%#'),
+            details = self.detail
+        )
+
+        # cart
+        self.cart = Cart(
+            customer_id = self.customer_id,
+            status = self.status,
+            items = [self.item]
+        )
+
+
+    #def teardown_method(self):
+        # destory cart object from memory
+        #del self.cart
+
+
+    def test_object_creation(self):
+        isinstance(self.cart, Cart)
+
+
+    def test_object_creation_value_for_customer_id(self):
+        assert self.cart.customer_id == self.customer_id
+
+
+    def test_object_creation_value_for_status(self):
+        assert self.cart.status == self.status
+
+
+    def test_object_creation_value_for_item_one(self):
+        assert self.cart.items[0] == self.item

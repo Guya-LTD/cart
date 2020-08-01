@@ -42,51 +42,12 @@ flask-mongoengine based ODM flask-mongoengine built up on pymongo engine.
 """
 
 from cart.database import db
+from .embed.items import Items
 from .mixins.timestamp_mixin import TimestampMixin
 from cart.model.cart import Cart as CartEntity
 
 
-class CartItems(db.EmbeddedDocument, TimestampMixin):
-    """Embedded document.
-    
-    Attributes
-    ----------
-    id: String
-        Products/Item id
-
-    quantity: int
-        Quantity of item
-
-    details: dict
-        The details field in each line item allows your application 
-        to display the cart contents to the user without requiring 
-        a second query to fetch details from the catalog collection.
-    """
-
-    id = db.StringField(required = True)
-
-    quantity = db.IntField(default = 1, validation = self.non_zero_quantity)
-
-    details = db.DictField()
-
-    def non_zero_quantity(quantity):
-        """A callable to validate the value of the field. 
-        The callable takes the value as parameter and should 
-        raise a ValidationError if validation fails
-
-        Validates for non zero quantity i.e quantity must be atlist 1
-
-        Parameters:
-        ----------
-        quantity: int
-        """
-
-        if quantity < 1:
-            raise ValidationError('Quantity must be atlist one or greater than one')
-
-
-
-class Cart(CartEntity):
+class Cart(db.Document, CartEntity, TimestampMixin):
     """Cart ODM
     ...
     
@@ -103,18 +64,45 @@ class Cart(CartEntity):
 
     items: array
         Cart times
+
+    ACTIVE: String
+        default value = active
+
+    PENDING: String
+        default value = pending
+
+    COMPLETE: String
+        default value = complete
+
+    EXPIRING: String
+        default value = expiring
+
+    EXPIRED: String
+        default value = expired
     """
+    
+    ACTIVE = 'active'
+
+    # checkout flow
+    PENDING = 'pending'
+
+    COMPLETE = 'complete'
+
+    # cart expiration flow
+    EXPIRING = 'expiring'
+
+    EXPIRED = 'expired'
 
     STATUS_CHOICES = (
-        self.ACTIVE,
-        self.PENDING,
-        self.COMPLETE,
-        self.EXPIRING,
-        self.EXPIRED
+        ACTIVE,
+        PENDING,
+        COMPLETE,
+        EXPIRING,
+        EXPIRED
     )
 
-    status = db.StringField(required = True, default = self.ACTIVE, choices = self.STATUS_CHOICES )
+    status = db.StringField(required = True, default = ACTIVE, choices = STATUS_CHOICES )
 
     customer_id = db.StringField(required = True)
 
-    items = db.ListField(db.DictField(db.EmbeddedDocumentField(CartItems)))
+    items = db.EmbeddedDocumentListField(Items)

@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 
 """Copyright Header Details
@@ -42,22 +41,23 @@ Application features:
 flask-mongoengine based ODM flask-mongoengine built up on pymongo engine.
 """
 
-from datetime import datetime
-from pytz import timezone
-
 from cart.database import db
 
+from .names import Names
+from .descriptions import Descriptions
 
-class TimestampMixin():
-    """Time Stamped Mixin
-
+class Details(db.EmbeddedDocument):
+    """Embedded document.
+    
     Attributes
     ----------
-    created_at : DateTime
-
-    updated_at : DateTime
+    names: dict
+        EN and AM language names
+        
+    descriptions:
+        EN and AM language descriptions
     """
 
-    created_at = db.DateTimeField(default = datetime.now(timezone('Africa/Addis_Ababa')))
+    names = db.DictField(db.EmbeddedDocumentField(Names))
 
-    updated_at = db.DateTimeField(default = datetime.now(timezone('Africa/Addis_Ababa')))
+    descriptions = db.DictField(db.EmbeddedDocumentField(Descriptions))
