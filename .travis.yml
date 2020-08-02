@@ -9,7 +9,7 @@ services:
   - mongodb
 
 env:
-  - GH_TOKEN=cb13003e5e786746bddbec4f6dc1f247af5ecaa4
+  - GH_TOKEN=ee1062335519b7c56b35edb30f58b0d528708f70
 
 install:
   #- pip install tox-travis
