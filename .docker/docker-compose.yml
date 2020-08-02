@@ -7,7 +7,7 @@ networks:
 services:
   mongo:
     image: cart/mongo
-    container_name: monog
+    container_name: mongo
     build:
       context: .
       dockerfile: ./mongo/Dockerfile
@@ -21,7 +21,7 @@ services:
       - "${SERVICE_DIR}/mongo/data/db:/data/db"
       - "${SERVICE_DIR}/mongo/init:/docker-entrypoint-initdb.d:ro"
     ports:
-      - "22202:${MONGO_PORT}"
+      - "2000:${MONGO_PORT}"
     networks:
       - cart
 
@@ -40,3 +40,5 @@ services:
       - '${BASE_DIR}:${WORK_DIR}'
     ports:
       - '${CART_PORT}:${CART_PORT}'
+    networks:
+      - cart

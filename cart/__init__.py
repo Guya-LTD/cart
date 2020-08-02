@@ -85,7 +85,7 @@ def create_app(test_config: dict = {}) -> Flask:
     load_dotenv()
     load_config(app)
     register_handler(app)
-
+    
     init_database(app)
     init_blueprints(app)
 

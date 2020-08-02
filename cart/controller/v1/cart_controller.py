@@ -120,6 +120,7 @@ from flask import jsonify, make_response
 
 from cart.dto.cart_dto import CartDto
 from cart.repository.cart import Cart
+from cart.exception import ValueEmpty, DocumentDoesNotExist
 from cart.blueprint.v1.cart import namespace
 
 
@@ -424,7 +425,11 @@ class CartResource(Resource):
         # start by validating request fields for extra security
         # step 1 validation: strip payloads for empty string
         if not id.strip():
-           raise ValueEmpty({'payloads': {'id': id}})
+           raise ValueEmpty({'payloads': {'customer_id': id}})
+
+        # step 2 validation: check if document exists in collection
+        if not Cart.objects(customer_id = id):
+            raise DocumentDoesNotExist({'payloads': {'customer_id': id}})
 
         # the query may be filtered by calling the QuerySet object 
         # with field lookup keyword arguments. The keys in the keyword 
@@ -444,7 +449,6 @@ class CartResource(Resource):
         # errors          array           Null            occured errors
         # warnings        array           Null            can be url format
         # datas           array/json      Null            results                 [ {Row 1}, {Row 2}, {Row 3}]
-        res = make_response
         return make_response(jsonify({
             'code': 202,
             'description': 'Accepted, Delete Accepted',
