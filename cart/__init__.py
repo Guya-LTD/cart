@@ -54,7 +54,7 @@ from .handlers import register_handler
 from cart.controller.v1 import foo_controller, cart_controller
 
 # const vars
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 __email__ = 'simonbelete@gmail.com'
 __title__ = 'Cart service for Guya microservices'
 __author__ = 'Simon Belete'
