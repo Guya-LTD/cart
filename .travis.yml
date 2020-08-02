@@ -5,12 +5,20 @@ language: python
 python:
   - 3.7
 
+services:
+  - mongodb
+
 env:
   - GH_TOKEN=cb13003e5e786746bddbec4f6dc1f247af5ecaa4
 
 install:
   #- pip install tox-travis
   - pip install -r requirements-dev.txt
+
+before_script:
+  - cp .env.example .env
+  - sleep 15
+  - mongo cart_db --eval 'db.createUser({user:"cart_user",pwd:"cart_password",roles:["readWrite"]});'
 
 script:
   - pytest
