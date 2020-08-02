@@ -9,7 +9,7 @@ services:
   - mongodb
 
 env:
-  - GH_TOKEN=249cebe55a11581fc63d7317edb2844cd7e98b0e
+  - GH_TOKEN=dce5682c0db04f878136102784d072e3ba238366
 
 install:
   #- pip install tox-travis
@@ -26,5 +26,5 @@ script:
 after_success:
   - git config --global user.name "Simonbelete"
   - git config --global user.email "simonbelete@gmail.com"
-  - export GH_TOKEN=249cebe55a11581fc63d7317edb2844cd7e98b0e
+  - export GH_TOKEN=dce5682c0db04f878136102784d072e3ba238366
   - semantic-release publish
