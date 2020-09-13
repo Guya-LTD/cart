@@ -51,7 +51,7 @@ from .config import config_by_name
 from .handlers import register_handler
 
 # import all controllers
-from cart.controller.v1 import cart_controller
+from cart.controller.v1 import cart_controller, item_controller
 
 # const vars
 __version__ = '0.2.3'
