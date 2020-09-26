@@ -1,7 +1,7 @@
 ########################################################
-# Production environment                               #
+# Development build                                    #
 ########################################################
-FROM python:3.7-slim AS production
+FROM python:3.7-slim AS development
 
 # Install git
 RUN apt-get update
@@ -14,8 +14,13 @@ WORKDIR ${WORK_DIR}
 COPY requirements.txt ${WORK_DIR}
 RUN chmod +x -R ${WORK_DIR}/requirements.txt
 
-RUN pip install -r requirements.txt
+COPY requirements-dev.txt ${WORK_DIR}
+RUN chmod +x -R ${WORK_DIR}/requirements-dev.txt
+
+RUN pip install -r requirements-dev.txt
 
 COPY . ./
 
-CMD python waitress_server.py
+RUN cp .env.example .env
+
+CMD flask run
