@@ -38,7 +38,7 @@ import logstash
 
 # const vars
 __extra__ = {
-    'app_name': 'Cart service for Guya microservices',
+    'app_name': 'Cart Service',
     'environment': os.getenv('ENV'),
     'container_host': os.getenv('HOST'),
     'port': os.getenv('PORT'),
@@ -65,5 +65,4 @@ logger.addHandler(
 
 def log_exception(error, extra) -> None:
     # recommanded for production or eithre the logging servier is running
-    # logger.exception(str(error), extra = __extra__.update(extra))
-    pass
+    logger.exception(str(error), extra = __extra__.update(extra))
