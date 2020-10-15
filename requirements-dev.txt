@@ -4,3 +4,7 @@
 faker
 pytest
 pytest-dotenv
+python-semantic-release
+commitizen
+semantic_release
+pre-commit

@@ -1,4 +1,5 @@
 .env
+venv/
 
 # mongo datas
 .docker/mongo/data/db/*.wt
