@@ -1,26 +1,12 @@
 ########################################################
 # Development build                                    #
 ########################################################
-FROM python:3.7-slim AS development
+FROM guyaltd/python:mongo AS development
 
-# Install git
-#RUN apt-get update
-#RUN apt-get -y install git
-
-# workdir
+# Workdir
 ENV WORK_DIR /usr/src/app
 WORKDIR ${WORK_DIR}
 
-COPY requirements.txt ${WORK_DIR}
-RUN chmod +x -R ${WORK_DIR}/requirements.txt
-
-COPY requirements-dev.txt ${WORK_DIR}
-RUN chmod +x -R ${WORK_DIR}/requirements-dev.txt
-
-RUN pip install -r requirements-dev.txt
-
-COPY . ./
-
-RUN cp .env.example .env
+COPY . .
 
 CMD flask run
