@@ -73,12 +73,12 @@ class Items(db.EmbeddedDocument):
         ----------
         quantity: int
         """
-
         if quantity < 1:
             raise ValidationError('Quantity must be atlist one or greater than one')
 
-    id = db.StringField(required = True)
+    ## Fields
+    product_id = db.StringField(required = True)
 
-    quantity = db.IntField(default = 1, validation = non_zero_quantity)
+    quantity = db.IntField(default = 1)#, validation = non_zero_quantity)
 
-    details = db.DictField(db.EmbeddedDocumentField(Details))
+    #details = db.DictField(db.EmbeddedDocumentField(Details))

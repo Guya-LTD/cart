@@ -116,124 +116,18 @@ Functions:
 
 
 from flask_restplus import Resource
-from flask import jsonify, make_response
+from flask import request, jsonify, make_response
 
 from cart.dto.item_dto import ItemDto
 from cart.repository.cart import Cart
 from cart.repository.embed import Descriptions, Details, Items, Names
 from cart.exception import ValueEmpty, DocumentDoesNotExist
 from cart.blueprint.v1.item import namespace
-
+from cart.middleware.jwt_auth_middleware import JWTAuthMiddleWare
 
 @namespace.route('')
-@namespace.response(100, 'Continue')
-@namespace.response(101, 'Switching Protocols')
-@namespace.response(102, 'Processing')
-@namespace.response(103, 'Early Hints (RFC 8297)')
-@namespace.response(200, 'Ok')
-@namespace.response(201, 'Created')
-@namespace.response(202, 'Accepted')
-@namespace.response(203, 'Non-Authoritative Information')
-@namespace.response(204, 'No Content')
-@namespace.response(205, 'Reset Content')
-@namespace.response(206, 'Partial Content')
-@namespace.response(207, 'Multi-Status')
-@namespace.response(208, 'Already Reported')
-@namespace.response(226, 'IM Used')
-@namespace.response(300, 'Multiple Choices')
-@namespace.response(301, 'Moved Permanently')
-@namespace.response(302, 'Found (Previously "Moved temporarily")')
-@namespace.response(303, 'See Other')
-@namespace.response(304, 'Not Modified')
-@namespace.response(305, 'Use Proxy')
-@namespace.response(306, 'Switch Proxy')
-@namespace.response(307, 'Temporary Redirect')
-@namespace.response(308, 'Permanent Redirect')
-@namespace.response(400, 'Bad  Request')
-@namespace.response(401, 'Unauthorized')
-@namespace.response(402, 'Payment Required')
-@namespace.response(403, 'Forbidden')
-@namespace.response(404, 'Not Found')
-@namespace.response(405, 'Method Not Allowed')
-@namespace.response(406, 'Not Acceptable')
-@namespace.response(407, 'Proxy Authentication Required')
-@namespace.response(408, 'Request Timeout')
-@namespace.response(409, 'Conflict')
-@namespace.response(410, 'Gone')
-@namespace.response(411, 'Length Required')
-@namespace.response(412, 'Precondition Failed')
-@namespace.response(413, 'Payload Too Large')
-@namespace.response(414, 'URI Too Long')
-@namespace.response(415, 'Unsupported Media Type')
-@namespace.response(416, 'Range Not Satisfiable')
-@namespace.response(417, 'Expection Failed')
-@namespace.response(418, 'I\'m a teapot')
-@namespace.response(421, 'Misdirected Request')
-@namespace.response(422, 'Unprocessable Entity ')
-@namespace.response(423, 'Locked')
-@namespace.response(424, 'Failed Dependency')
-@namespace.response(425, 'Too Early')
-@namespace.response(426, 'Upgrade Required')
-@namespace.response(428, 'Precondition Required')
-@namespace.response(429, 'Too Many Requests')
-@namespace.response(431, 'Request Header Fields Too Large')
-@namespace.response(451, 'Unavailable For Legal Reasons')
-@namespace.response(500, 'Internal Server Error')
-@namespace.response(501, 'Not Implemented')
-@namespace.response(502, 'Bad Gateway')
-@namespace.response(503, 'Service Unavaliable')
-@namespace.response(504, 'Gateway Timeout')
-@namespace.response(505, 'HTTP Version Not Supported')
-@namespace.response(506, 'Variant Also Negotiates')
-@namespace.response(507, 'Insufficent Storage')
-@namespace.response(508, 'Loop Detected')
-@namespace.response(510, 'Not Extended')
-@namespace.response(511, 'Network Authentication Required')
-class ItemsResource(Resource):
-    """Cartbar Related Operation
-
-    ...
-
-    `asc'  +
-    `desc` -
-
-
-    Attributes
-    ----------
-    LIMIT : Integer
-        Max allowed rows
-
-    Methods
-    -------
-    get() :
-        Get All/Semi datas from database
-
-    post() :
-        Save data/datas to database
-
-    """
-
-    def get(self, customerId):
-        """Get All/Semi datas from database
-
-        ...
-
-        Query Examples:
-            * Filtering :
-                - name.en=eq:abc&name.am=neq:abc
-
-        Returns
-        -------
-            Json Dictionaries
-
-        """
-
-        # method not allowed
-        namespace.abort(405)
-
-
-    #@namespace.expect(CartDto.request, validate = True)
-    def post(self, customerId):
+class CartItemsResource(Resource):
+    def post(self):
         """Save data/datas to database
 
         ...
@@ -243,285 +137,71 @@ class ItemsResource(Resource):
             Json Dictionaries
 
         """
-        # add item to cart
-        # if cart does not exist for the customer create one
-        # start by validating request fields for extra security
-        # step 1 validation: strip payloads for empty string
-        if not customerId.strip():
-           raise ValueEmpty({'payloads': {'customer_id': id}})
+        ## Add an item to the cart
+        jwtAuthMiddleWare = JWTAuthMiddleWare(request)
+        auth = jwtAuthMiddleWare.authorize()
+        # If auth is false break and return response to client
+        # Else jwtAuthMiddleWare holds decoded users data
+        if not auth:
+            return jwtAuthMiddleWare.response
 
-        # step 2 validation: validate item
-        if not namespace.payload['status'].strip() or \
-           not namespace.payload['names']['en'].strip() or \
-           not namespace.payload['descriptions']['en'].strip() or \
-           not namespace.payload['id'].strip() or \
-           not namespace.payload['quantity'].strip():
-           raise ValueEmpty({'payloads': namespace.payload})
+        ## TODO: Check if user have permission, or elese return 403 Forbidden
+        
+        if not namespace.payload["product_id"].strip() or \
+           not namespace.payload["quantity"].strip():
+           raise ValueEmpty({"payloads": namespace.payload})
 
-        names = Names(
-            en = namespace.payload['names']['en'],
-            am = namespace.payload['names']['am'])
-
-        descriptions = Descriptions(
-            en = namespace.payload['descriptions']['en'],
-            am = namespace.payload['descriptions']['am'])
-
-        details = Details(
-            names = names,
-            descriptions = descriptions)
+        ## Either create new cart or update one
+        cart = Cart.objects(customer_id = str(jwtAuthMiddleWare.user["data"]["id"]))
 
         item = Items(
-            id = namespace.payload['id'],
-            quantity = namespace.payload['quantity'],
-            details = details)
+            product_id = str(namespace.payload["product_id"]),
+            quantity = int(namespace.payload["quantity"])
+        )
 
-        # either create new cart or update one
-        cart = Cart.objects(customer_id = id)
-
-        # response optional vars
-        message = None
-
-        if cart is None:
+        if not cart:
+            ## Create new cart document
             new_cart = Cart(
-                customer_id = customerId,
-                status = namespace.payload['status'],
+                customer_id = str(jwtAuthMiddleWare.user["data"]["id"]),
+                status = Cart.ACTIVE,
                 items = [item]
             )
             new_cart.save()
-            # response message
-            message = 'Cart was not found for the user so new cart is created'
+            message = "Cart was not found for the user so new cart is created"
         else:
-            old_cart = Cart.objects(customer_id = customerId).get()
+            old_cart = Cart.objects(customer_id = str(jwtAuthMiddleWare.user["data"]["id"])).get()
+   
             old_cart.items.append(item)
             old_cart.save()
-            
-        # Return must always include the global fileds :
-        # Field           Datatype        Default         Description             Examples
-        # -----           --------        -------         -----------             --------
-        # code            int             201             1xx, 2xx, 3xx, 5xx
-        # description     string          Created         http code description
-        # messages        array           Null            any type of messages
-        # errors          array           Null            occured errors
-        # warnings        array           Null            can be url format
-        # datas           array/json      Null            results                 [ {Row 1}, {Row 2}, {Row 3}]
+            message = "Item added to cart"
+
         return make_response(jsonify({
-            'code': 201,
-            'description': 'Created',
-            'message': message,
-            'errors': [],
-            'warnings': [],
-            'datas': namespace.payload
-        }), 201)
+            "status_code": "201",
+            "status": "Created",
+            "message": message
+        }))
 
 
-
-@namespace.route('/<id>')
-@namespace.param('id', 'Customer\'s ID')
-@namespace.response(100, 'Continue')
-@namespace.response(101, 'Switching Protocols')
-@namespace.response(102, 'Processing')
-@namespace.response(103, 'Early Hints (RFC 8297)')
-@namespace.response(200, 'Ok')
-@namespace.response(201, 'Created')
-@namespace.response(202, 'Accepted')
-@namespace.response(203, 'Non-Authoritative Information')
-@namespace.response(204, 'No Content')
-@namespace.response(205, 'Reset Content')
-@namespace.response(206, 'Partial Content')
-@namespace.response(207, 'Multi-Status')
-@namespace.response(208, 'Already Reported')
-@namespace.response(226, 'IM Used')
-@namespace.response(300, 'Multiple Choices')
-@namespace.response(301, 'Moved Permanently')
-@namespace.response(302, 'Found (Previously "Moved temporarily")')
-@namespace.response(303, 'See Other')
-@namespace.response(304, 'Not Modified')
-@namespace.response(305, 'Use Proxy')
-@namespace.response(306, 'Switch Proxy')
-@namespace.response(307, 'Temporary Redirect')
-@namespace.response(308, 'Permanent Redirect')
-@namespace.response(400, 'Bad  Request')
-@namespace.response(401, 'Unauthorized')
-@namespace.response(402, 'Payment Required')
-@namespace.response(403, 'Forbidden')
-@namespace.response(404, 'Not Found')
-@namespace.response(405, 'Method Not Allowed')
-@namespace.response(406, 'Not Acceptable')
-@namespace.response(407, 'Proxy Authentication Required')
-@namespace.response(408, 'Request Timeout')
-@namespace.response(409, 'Conflict')
-@namespace.response(410, 'Gone')
-@namespace.response(411, 'Length Required')
-@namespace.response(412, 'Precondition Failed')
-@namespace.response(413, 'Payload Too Large')
-@namespace.response(414, 'URI Too Long')
-@namespace.response(415, 'Unsupported Media Type')
-@namespace.response(416, 'Range Not Satisfiable')
-@namespace.response(417, 'Expection Failed')
-@namespace.response(418, 'I\'m a teapot')
-@namespace.response(421, 'Misdirected Request')
-@namespace.response(422, 'Unprocessable Entity ')
-@namespace.response(423, 'Locked')
-@namespace.response(424, 'Failed Dependency')
-@namespace.response(425, 'Too Early')
-@namespace.response(426, 'Upgrade Required')
-@namespace.response(428, 'Precondition Required')
-@namespace.response(429, 'Too Many Requests')
-@namespace.response(431, 'Request Header Fields Too Large')
-@namespace.response(451, 'Unavailable For Legal Reasons')
-@namespace.response(500, 'Internal Server Error')
-@namespace.response(501, 'Not Implemented')
-@namespace.response(502, 'Bad Gateway')
-@namespace.response(503, 'Service Unavaliable')
-@namespace.response(504, 'Gateway Timeout')
-@namespace.response(505, 'HTTP Version Not Supported')
-@namespace.response(506, 'Variant Also Negotiates')
-@namespace.response(507, 'Insufficent Storage')
-@namespace.response(508, 'Loop Detected')
-@namespace.response(510, 'Not Extended')
-@namespace.response(511, 'Network Authentication Required')
-class CartResource(Resource):
-    """"Single Cartbar Related Operation
-
-    ...
-
-    Methods
-    -------
-    get(id:String) :
-        Get a data from database
-
-    put(id:String) :
-        Update a data from database
-
-    delete(id:String) :
-        Delete a data from database
-
-    """
-
-    def get(self, id):
-        """Get All/Semi datas from database
-
-        ...
-
-        Parameters
-        ----------
-        id : integer
-            Object Id, i.e 12-byte, 24 char hexadicmal
-
-        Returns
-        -------
-            Json Dictionaries
-
-        """
-        # get all users cart with items
+@namespace.route('/<string:id>')
+class CartItemResource(Resource):
+    def delete(self, id):
         # start by validating request fields for extra security
         # step 1 validation: strip payloads for empty string
         if not id.strip():
            raise ValueEmpty({'payloads': {'id': id}})
 
-        # the query may be filtered by calling the QuerySet object 
-        # with field lookup keyword arguments. The keys in the keyword 
-        # arguments correspond to fields on the Document you are querying
-        carts = Cart.objects(customer_id = id)
+        ## Add an item to the cart
+        jwtAuthMiddleWare = JWTAuthMiddleWare(request)
+        auth = jwtAuthMiddleWare.authorize()
+        # If auth is false break and return response to client
+        # Else jwtAuthMiddleWare holds decoded users data
+        if not auth:
+            return jwtAuthMiddleWare.response
 
-        # Return must always include the global fileds :
-        # Field           Datatype        Default         Description             Examples
-        # -----           --------        -------         -----------             --------
-        # code            int             201             1xx, 2xx, 3xx, 5xx
-        # description     string          Created         http code description
-        # messages        array           Null            any type of messages
-        # errors          array           Null            occured errors
-        # warnings        array           Null            can be url format
-        # datas           array/json      Null            results                 [ {Row 1}, {Row 2}, {Row 3}]
-        code = 200
-        description = 'OK'
-        message = None
-
-        if not carts:
-            code = 204
-            description = 'No Content'
-            message = 'No data found'
+        cart = Cart.objects(customer_id = jwtAuthMiddleWare.user["data"]["id"])
+        cart.update(pull__items__id = Items(product_id = id).id)
 
         return make_response(jsonify({
-            'code': code,
-            'description': description,
-            'message': message,
-            'errors': [],
-            'warnings': [],
-            'datas': [carts]
-        }), code)
-
-
-    #@namespace.expect(CartDto.request, validate = True)
-    def put(self, id):
-        """Update a data from database
-
-        ...
-
-        Parameters
-        ----------
-        id : String
-            Object Id, i.e 12-byte, 24 char hexadicmal
-
-        Returns
-        -------
-            Json Dictionaries
-
-        """
-
-        # method not allowed
-        namespace.abort(405)
-
-
-    def delete(self, id):
-        """Update a data from database
-
-        ...
-
-        Parameters
-        ----------
-        id : String
-            Object Id, i.e 12-byte, 24 char hexadicmal
-
-        Returns
-        -------
-            Json Dictionaries
-
-        """
-        # change status of the cart to 'EXPIRED'
-        # get all users cart with items
-        # start by validating request fields for extra security
-        # step 1 validation: strip payloads for empty string
-        if not id.strip():
-           raise ValueEmpty({'payloads': {'customer_id': id}})
-
-        # step 2 validation: check if document exists in collection
-        if not Cart.objects(customer_id = id):
-            raise DocumentDoesNotExist({'payloads': {'customer_id': id}})
-
-        # the query may be filtered by calling the QuerySet object 
-        # with field lookup keyword arguments. The keys in the keyword 
-        # arguments correspond to fields on the Document you are querying
-        # and appending automatic update keys i.e using update_one
-        cart = Cart.objects(customer_id = id).update_one(set__status = Cart.EXPIRED)
-
-        # the document has been changed, so we need to reload it
-        cart.reload()
-
-        # Return must always include the global fileds :
-        # Field           Datatype        Default         Description             Examples
-        # -----           --------        -------         -----------             --------
-        # code            int             201             1xx, 2xx, 3xx, 5xx
-        # description     string          Created         http code description
-        # messages        array           Null            any type of messages
-        # errors          array           Null            occured errors
-        # warnings        array           Null            can be url format
-        # datas           array/json      Null            results                 [ {Row 1}, {Row 2}, {Row 3}]
-        return make_response(jsonify({
-            'code': 202,
-            'description': 'Accepted, Delete Accepted',
-            'message': None,
-            'errors': [],
-            'warnings': [],
-            'datas': []
-        }), 202)
+            "status_code": 200,
+            "status": "OK"
+        }), 200)

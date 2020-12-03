@@ -45,4 +45,4 @@ from . import api
 
 namespace = Namespace('Items', description = 'Cart items HTTP REST API endpoint')
 
-api.add_namespace(namespace, path = '/api/v1/carts/<customerId>/items')
+api.add_namespace(namespace, path = '/api/v1/carts/items')
